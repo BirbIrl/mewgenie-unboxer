@@ -95,7 +95,6 @@ mewgenie.blacklist = {
 		"EyeCatchin",
 		"DeathChill",
 		"LongStrider",
-		"VoidSoul",
 		"Deathless",
 		"STARTER_PLACEHOLDER_Butcher",
 		"STARTER_PLACEHOLDER_Colorless",
