@@ -54,6 +54,8 @@ for _, passive in pairs(passives) do
 	assignText(passive, text)
 end
 
+passives.VoidSoul.class = "Colorless" --temporary fix because it has no class assigned
+
 for _, ability in pairs(abilities) do
 	assignText(ability, text)
 end
