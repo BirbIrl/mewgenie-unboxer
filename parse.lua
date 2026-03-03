@@ -133,6 +133,15 @@ for _, nameId in ipairs(mewgenie.collarOrder) do
 	collarInfo.desc = text["CAT_CLASS_" .. nameId:upper() .. "_DESC"]
 end
 
+mewgenie.languages = {
+	en = "English",
+	sp = "Spanish",
+	fr = "French",
+	de = "German",
+	it = "Italian",
+	ptbr = "Brazilian Portuguese"
+}
+
 
 sh.write(paths.mewgenie .. "/mewgenie.json", json.encode(mewgenie))
 
