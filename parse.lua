@@ -31,6 +31,8 @@ local function assignText(ability, text)
 	end
 end
 
+
+
 if sh.stat(paths.mewgenie) then
 	if ... == "--force" then
 		sh.rm(paths.mewgenie, true)
@@ -41,9 +43,11 @@ if sh.stat(paths.mewgenie) then
 	end
 end
 
+
 iconExtractor.extractAbilities()
 svgAdjuster.adjustPassives()
 svgAdjuster.adjustSkills()
+svgAdjuster.adjustClasses()
 
 local passives, abilities = dataLoader.load()
 
@@ -131,6 +135,8 @@ end
 
 
 sh.write(paths.mewgenie .. "/mewgenie.json", json.encode(mewgenie))
+
+
 
 --[[
 ---@enum mewgenie.element
