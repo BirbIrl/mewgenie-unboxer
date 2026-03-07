@@ -118,7 +118,15 @@ mewgenie.blacklist = {
 		"STARTER_PLACEHOLDER_Thief",
 		"STARTER_PLACEHOLDER_Tinkerer",
 	},
-	actives = {}
+	actives = {
+		"Double",
+		"Enlarge",
+		"FireArmor",
+		"IceArmor",
+		"Purge",
+		"DoubleLoot",
+		"Camouflage",
+	}
 }
 
 mewgenie.collarOrder = {
