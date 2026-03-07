@@ -118,7 +118,7 @@ mewgenie.blacklist = {
 		"STARTER_PLACEHOLDER_Thief",
 		"STARTER_PLACEHOLDER_Tinkerer",
 	},
-	actives = {
+	abilities = {
 		"Double",
 		"Enlarge",
 		"FireArmor",
