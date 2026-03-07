@@ -47,7 +47,6 @@ end
 iconExtractor.extractAbilities()
 svgAdjuster.adjustPassives()
 svgAdjuster.adjustSkills()
-svgAdjuster.adjustClasses()
 
 local passives, abilities = dataLoader.load()
 
@@ -61,7 +60,9 @@ end
 passives.VoidSoul.class = "Colorless" --temporary fix because it has no class assigned
 
 for _, ability in pairs(abilities) do
-	assignText(ability, text)
+	if ability.meta then
+		assignText(ability.meta, text)
+	end
 end
 
 
@@ -75,7 +76,7 @@ passivesFile:close()
 
 
 iconExtractor.extractFontIcons()
-
+svgAdjuster.adjustClasses()
 
 shellMaker.makeShells()
 
@@ -116,7 +117,8 @@ mewgenie.blacklist = {
 		"STARTER_PLACEHOLDER_Tank",
 		"STARTER_PLACEHOLDER_Thief",
 		"STARTER_PLACEHOLDER_Tinkerer",
-	}
+	},
+	actives = {}
 }
 
 mewgenie.collarOrder = {
