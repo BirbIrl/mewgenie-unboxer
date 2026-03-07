@@ -126,6 +126,27 @@ mewgenie.blacklist = {
 		"Purge",
 		"DoubleLoot",
 		"Camouflage",
+		"STARTER_PLACEHOLDER_Butcher",
+		"STARTER_PLACEHOLDER_Colorless",
+		"STARTER_PLACEHOLDER_Druid",
+		"STARTER_PLACEHOLDER_Fighter",
+		"STARTER_PLACEHOLDER_Hunter",
+		"STARTER_PLACEHOLDER_Jester",
+		"STARTER_PLACEHOLDER_Mage",
+		"STARTER_PLACEHOLDER_Medic",
+		"STARTER_PLACEHOLDER_Monk",
+		"STARTER_PLACEHOLDER_Necromancer",
+		"STARTER_PLACEHOLDER_Psychic",
+		"STARTER_PLACEHOLDER_Tank",
+		"STARTER_PLACEHOLDER_Thief",
+		"STARTER_PLACEHOLDER_Tinkerer",
+		"STARTER_PLACEHOLDER_Fighter",
+		"Metronome_Enemy", --these three are temporary until we figure out a system to get rid of
+		"DCBirthSquirrel",
+		"PsychicChoke_Enemy",
+		"Parasaurolophus_Push",
+		"NCReanimate",
+		"Endeavor_Auto",
 	}
 }
 
