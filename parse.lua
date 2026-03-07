@@ -141,12 +141,17 @@ mewgenie.blacklist = {
 		"STARTER_PLACEHOLDER_Thief",
 		"STARTER_PLACEHOLDER_Tinkerer",
 		"STARTER_PLACEHOLDER_Fighter",
+		"ATTACK_PLACEHOLDER_JesterBasic",
 		"Metronome_Enemy", --these three are temporary until we figure out a system to get rid of
 		"DCBirthSquirrel",
 		"PsychicChoke_Enemy",
 		"Parasaurolophus_Push",
 		"NCReanimate",
 		"Endeavor_Auto",
+		"DCAeroblast",
+		"MCHadouken",
+		"SM_MagicMissile",
+		"TCMechSuit",
 	}
 }
 
