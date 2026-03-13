@@ -8,24 +8,27 @@ local module = {}
 function module.load()
 	local passives = {}
 	local abilities = {}
+	local unlocks = {}
 	for _, path in ipairs(paths.data.gon.passives) do
-		local file = assert(io.open(path, "r"))
-		local parsed = eggon.parse(file:read("a"))
-		file:close()
+		local parsed = eggon.parse(sh.read(path))
 		for key, value in pairs(parsed) do
 			passives[key] = value
 		end
 	end
 
 	for _, path in ipairs(paths.data.gon.abilities) do
-		local file = assert(io.open(path, "r"))
-		local parsed = eggon.parse(file:read("a"))
-		file:close()
+		local parsed = eggon.parse(sh.read(path))
 		for key, value in pairs(parsed) do
 			abilities[key] = value
 		end
 	end
-	return passives, abilities
+
+	local parsed = eggon.parse(sh.read(paths.data.gon.unlocks))
+	for key, value in pairs(parsed) do
+		unlocks[key] = value
+	end
+
+	return passives, abilities, unlocks
 end
 
 return module

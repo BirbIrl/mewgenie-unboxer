@@ -46,9 +46,10 @@ paths.assets = {
 }
 paths.data = {
 	json = {
-		folder = paths.mewgenie .. "",
+		folder = paths.mewgenie,
 		passives = paths.mewgenie .. "/passives.json",
 		abilities = paths.mewgenie .. "/abilities.json",
+		mewgenie = paths.mewgenie .. "/mewgenie.json",
 	},
 	csv = {
 		"./mewgenics-data/data/text/abilities.csv",
@@ -72,6 +73,7 @@ paths.data = {
 		"./mewgenics-data/data/text/weather.csv",
 	},
 	gon = {
+		unlocks = "./mewgenics-data/data/adventure_progression_unlocks.gon",
 		passives = {
 			"./mewgenics-data/data/passives/butcher_passives.gon",
 			"./mewgenics-data/data/passives/colorless_passives.gon",
