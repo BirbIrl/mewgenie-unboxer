@@ -49,6 +49,7 @@ paths.data = {
 		folder = paths.mewgenie,
 		passives = paths.mewgenie .. "/passives.json",
 		abilities = paths.mewgenie .. "/abilities.json",
+		unlocks = paths.mewgenie .. "/unlocks.json",
 		mewgenie = paths.mewgenie .. "/mewgenie.json",
 	},
 	csv = {

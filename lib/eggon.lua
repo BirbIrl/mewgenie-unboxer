@@ -1,8 +1,6 @@
 -- eggon - birbirl's half-assed gon file parser
 -- a part of me wanted to call this library "goon" because lua stands for "moon" - thank me i didn't do that. egg-on will do.
 -- the lion doesn't concern himself with the 9 goto's
---
---breaks with: tooltip_values ["max((X-1)*2, 0)"]
 local module = {}
 
 ---@enum modes
@@ -74,11 +72,19 @@ function module.parse(contents)
 					definition = chunk
 					mode = modes.declare
 				elseif mode == modes.declare then
-					if tableTypes[tree[#tree]] == "object" then
-						tree[#tree][definition] = parseChunk(chunk)
+					local node = tree[#tree]
+					if tableTypes[node] == "object" then
+						if node[definition] then
+							if type(node[definition]) ~= "table" and not tableTypes[node[definition]] then
+								node[definition] = { node[definition] }
+							end
+							table.insert(node[definition], parseChunk(chunk))
+						else
+							node[definition] = parseChunk(chunk)
+						end
 						mode = modes.define
 					else
-						local arr = tree[#tree]
+						local arr = node
 						arr[#arr + 1] = parseChunk(chunk)
 					end
 				end
@@ -120,13 +126,27 @@ function module.parse(contents)
 			end
 		end
 
-		if mode == modes.define and char == "}" then
+		if char == "}" then
+			if chunk then
+				if mode == modes.declare then
+					local node = tree[#tree]
+					if tableTypes[node] == "object" then
+						node[definition] = parseChunk(chunk)
+					else
+						node[#node + 1] = parseChunk(chunk)
+					end
+				end
+				chunk = nil
+			end
+
 			tree[#tree] = nil
+
 			if tableTypes[tree[#tree]] == "object" then
 				mode = modes.define
 			else
 				mode = modes.declare
 			end
+
 			goto skip
 		end
 

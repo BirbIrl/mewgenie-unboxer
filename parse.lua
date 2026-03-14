@@ -1,5 +1,3 @@
-local serpent = require("lib.serpent")
-local eggon = require("lib.eggon")
 local iconExtractor = require("scripts.iconExtractor")
 local svgAdjuster = require("scripts.svgAdjuster")
 local sh = require("lib.shellUtils")
@@ -11,8 +9,10 @@ local shellMaker = require("scripts.shellMaker")
 local fontExtractor = require("scripts.fontExtractor")
 local dataTransformer = require("scripts.dataTransformer")
 local mewgenieMetadataMaker = require("scripts.mewgenieMetadataMaker")
+local serpent = require("lib.serpent")
 
 
+--TODO: extract templates, apply templates to actives and refactor them to match
 
 
 
@@ -26,6 +26,8 @@ if sh.stat(paths.mewgenie) then
 	end
 end
 
+sh.mkdir(paths.mewgenie)
+
 iconExtractor.extractAbilities()
 svgAdjuster.adjustPassives()
 svgAdjuster.adjustSkills()
@@ -38,17 +40,19 @@ shellMaker.makeShells()
 fontExtractor.extractFonts()
 
 
+
 local passives, abilities, unlocks = dataLoader.load()
 
 
 dataTransformer.tweakData(passives, abilities)
 local text = langLoader.load()
-dataTransformer.applyText(passives, abilities, text)
-
+dataTransformer.standardizePassives(passives)
 dataTransformer.applyUnlocks(passives, abilities, unlocks)
+dataTransformer.applyText(passives, abilities, text)
 
 sh.write(paths.data.json.abilities, json.encode(abilities))
 sh.write(paths.data.json.passives, json.encode(passives))
+sh.write(paths.data.json.unlocks, json.encode(unlocks))
 
 local mewgenie = mewgenieMetadataMaker.make(text)
 
