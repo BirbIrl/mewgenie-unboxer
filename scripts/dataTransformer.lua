@@ -7,7 +7,7 @@ function module.tweakData(passives, abilities)
 end
 
 function module.applyUnlocks(passives, abilities, unlocks)
-	for unlockName, unlock in pairs(unlocks) do
+	for id, unlock in pairs(unlocks) do
 		local targets
 		local pool
 		if unlock.unlock_passive then
@@ -18,7 +18,7 @@ function module.applyUnlocks(passives, abilities, unlocks)
 			pool = abilities
 			targets = unlock.unlock_ability
 			unlock.unlock_ability = nil
-			-- elseif unlock.unlock_song then
+			--elseif unlock.unlock_song then
 			--elseif unlock.unlock_item or unlock.unlock_item_immediate then
 		else
 			goto continue
@@ -29,6 +29,7 @@ function module.applyUnlocks(passives, abilities, unlocks)
 
 		local condition = {}
 		condition["repeat"] = unlock["repeat"] -- repeat is reserved
+		condition.id = id
 
 		if unlock.complete_chapter_with_class then
 			condition.cheapter = unlock.complete_chapter_with_class[1]
@@ -38,8 +39,8 @@ function module.applyUnlocks(passives, abilities, unlocks)
 			print(serpent.block(unlock))
 		end
 		for _, target in ipairs(targets) do
-			for _, levelledTarget in ipairs(pool[target]) do
-				levelledTarget.unlock_condition = condition
+			for _, tieredTarget in ipairs(pool[target]) do
+				tieredTarget.unlock_condition = condition
 			end
 		end
 
@@ -78,19 +79,23 @@ end
 
 
 function module.standardizePassives(passives)
-	for name, passive in pairs(passives) do
+	for id, passive in pairs(passives) do
 		if not passive["1"] then
 			local tbl = {}
 			tbl["1"] = passive
 			passive = tbl
 		end
 		local new = {}
-		for tier, levelledPassive in iStringPairs(passive) do
-			new[tonumber(tier)] = levelledPassive
+		for tier, tieredPassive in iStringPairs(passive) do
+			new[tonumber(tier)] = tieredPassive
+			tieredPassive.id = id
+			tieredPassive.tier = tier
 			for key, value in pairs(passive) do
 				if not tonumber(key) then
-					levelledPassive[key] = levelledPassive[key] or value
+					tieredPassive[key] = tieredPassive[key] or value
 				end
+				tieredPassive.tier = tonumber(tier)
+				tieredPassive.id = id
 			end
 		end
 		for key, _ in pairs(passive) do
@@ -98,46 +103,50 @@ function module.standardizePassives(passives)
 				passive[key] = nil
 			end
 		end
-		passives[name] = new
+		passives[id] = new
 	end
 end
 
 ---@param abilities table<string, table>
 function module.standardizeAbilities(abilities)
 	local standardizedAbilities = {}
-	for abilityName, ability in pairs(abilities) do
-		if tonumber(abilityName:sub(-1, -1)) then
+	for id, ability in pairs(abilities) do
+		if tonumber(id:sub(-1, -1)) then
 			goto continue
 		end
-		local full = {}
-		full[1] = ability
-		local i = 2
-		while abilities[abilityName .. i] do
-			full[i] = abilities[abilityName .. i]
+		local abilityTiers = {}
+		abilityTiers[1] = ability
+		local i = 1
+		while abilities[id .. i + 1] do
 			i = i + 1
+			abilityTiers[i] = abilities[id .. i]
 		end
+		local maxTier = i
 
-		for tier, levelledAbility in ipairs(full) do
-			levelledAbility.templateClass = levelledAbility.class -- renaming the templateClass field for my own needs
-			levelledAbility.class = nil
-			if not levelledAbility.meta then
+		for tier, tieredAbility in ipairs(abilityTiers) do
+			tieredAbility.templateClass = tieredAbility.class -- renaming the templateClass field for my own needs
+			tieredAbility.class = nil
+			tieredAbility.tier = tonumber(tier)
+			tieredAbility.id = id
+			tieredAbility.maxTier = maxTier
+
+			if not tieredAbility.meta then
 				goto continue
 			end
-			for key, value in pairs(levelledAbility.meta) do
-				levelledAbility[key] = value
+			for key, value in pairs(tieredAbility.meta) do
+				tieredAbility[key] = value
 			end
-			levelledAbility.tier = tonumber(tier)
-			levelledAbility.name = abilityName
-			levelledAbility.meta = nil
+			tieredAbility.meta = nil
+
 			::continue::
 		end
 
-		standardizedAbilities[abilityName] = full
+		standardizedAbilities[id] = abilityTiers
 		::continue::
 	end
-	for _, ability in pairs(standardizedAbilities) do
-		for _, levelledAbility in ipairs(ability) do
-			module.assignDependencies(levelledAbility, standardizedAbilities)
+	for _, abilityTiers in pairs(standardizedAbilities) do
+		for _, ability in ipairs(abilityTiers) do
+			module.assignDependencies(ability, standardizedAbilities)
 		end
 	end
 	return standardizedAbilities
@@ -162,23 +171,32 @@ function module.assignDependencies(ability, abilities)
 	else
 		return
 	end
-	-- all variant_of's use the first level of the ability
-	assert(not tonumber(parentName:sub(-1, -1)), "the code doesn't expect a parent of an ability to have a level")
+	-- all variant_of's use the first tier of the ability
+	assert(not tonumber(parentName:sub(-1, -1)), "the code doesn't expect a parent of an ability to have a tier ")
 	local parent = abilities[parentName][1]
+	parent.children = parent.children or {}
+	table.insert(parent.children, abilities.id)
 	module.assignDependencies(parent, abilities)
 	ability.ancestors = shallowCopy(parent.ancestors or {})
 	table.insert(ability.ancestors, 1, parentName)
+	--[[
+	if #ability.ancestors > 2 then
+		print(serpent.block(ability))
+		print(#ability.ancestors)
+		print(ability.id)
+	end
+	--]]
 end
 
 function module.flattenAbiltiies(abilities)
-	for _, ability in pairs(abilities) do
-		for _, levelledAbility in ipairs(ability) do
-			if not levelledAbility.ancestors then
+	for _, abilityTiers in pairs(abilities) do
+		for _, ability in ipairs(abilityTiers) do
+			if not ability.ancestors then
 				goto continue
 			end
-			for _, ancestorName in ipairs(levelledAbility.ancestors) do
+			for _, ancestorName in ipairs(ability.ancestors) do
 				for key, value in pairs(abilities[ancestorName][1]) do
-					merge(value, levelledAbility, key)
+					merge(value, ability, key)
 				end
 			end
 			::continue::
@@ -188,21 +206,21 @@ end
 
 function module.applyBlacklist(passives, abilities, blacklist)
 	for _, name in ipairs(blacklist.passives) do
-		for _, levelledPassive in ipairs(passives[name]) do
-			levelledPassive.blacklisted = true
+		for _, tieredPassive in ipairs(passives[name]) do
+			tieredPassive.blacklisted = true
 		end
 	end
 
 	for _, name in ipairs(blacklist.abilities) do
-		for _, levelledAbility in ipairs(abilities[name]) do
-			levelledAbility.blacklisted = true
+		for _, ability in ipairs(abilities[name]) do
+			ability.blacklisted = true
 		end
 	end
 
-	for name, ability in pairs(abilities) do
+	for name, abilityTiers in pairs(abilities) do
 		if name:sub(1, 9) == "template_" then
-			for _, levelledAbility in ipairs(ability) do
-				levelledAbility.blacklisted = true
+			for _, ability in ipairs(abilityTiers) do
+				ability.blacklisted = true
 			end
 		end
 	end

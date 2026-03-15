@@ -53,7 +53,6 @@ dataTransformer.applyUnlocks(passives, abilities, unlocks)
 dataTransformer.applyText(passives, abilities, text)
 dataTransformer.applyBlacklist(passives, abilities, mewgenie.blacklist)
 
-print(serpent.block(passives))
 sh.write(paths.data.json.passives, json.encode(passives))
 sh.write(paths.data.json.abilities, json.encode(abilities))
 sh.write(paths.data.json.unlocks, json.encode(unlocks))
