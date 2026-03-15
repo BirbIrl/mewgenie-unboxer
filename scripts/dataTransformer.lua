@@ -38,7 +38,9 @@ function module.applyUnlocks(passives, abilities, unlocks)
 			print(serpent.block(unlock))
 		end
 		for _, target in ipairs(targets) do
-			pool[target].unlock_condition = condition
+			for _, levelledTarget in ipairs(pool[target]) do
+				levelledTarget.unlock_condition = condition
+			end
 		end
 
 		::continue::
@@ -74,41 +76,30 @@ local function merge(value, target, key)
 end
 
 
+
 function module.standardizePassives(passives)
-	for _, passive in pairs(passives) do
-		passive["1"] = passive["1"] or {}
-		for key, value in pairs(passive) do
-			if tonumber(key) or key == "class" or key == "unlock_condition" then
-				goto continue
-			end
-			for _, levelledPassive in iStringPairs(passive) do
-				merge(value, levelledPassive, key)
-			end
-			passive[key] = nil
-			::continue::
+	for name, passive in pairs(passives) do
+		if not passive["1"] then
+			local tbl = {}
+			tbl["1"] = passive
+			passive = tbl
 		end
+		local new = {}
+		for tier, levelledPassive in iStringPairs(passive) do
+			new[tonumber(tier)] = levelledPassive
+			for key, value in pairs(passive) do
+				if not tonumber(key) then
+					levelledPassive[key] = levelledPassive[key] or value
+				end
+			end
+		end
+		for key, _ in pairs(passive) do
+			if not tonumber(key) then
+				passive[key] = nil
+			end
+		end
+		passives[name] = new
 	end
-end
-
-local function flattenDependencies(ability, abilities)
-	local parentName = nil
-	if ability.variant_of then
-		parentName = ability.variant_of
-		ability.variant_of = nil
-	elseif ability.template then
-		parentName = "template_" .. ability.template
-		ability.template = nil
-	else
-		return
-	end
-
-	local parent = abilities[parentName]
-	for key, value in pairs(parent) do
-		merge(value, ability, key)
-	end
-	ability.parents = ability.parents or {}
-	table.insert(ability.parents, 1, parentName)
-	flattenDependencies(ability, abilities)
 end
 
 ---@param abilities table<string, table>
@@ -119,46 +110,106 @@ function module.standardizeAbilities(abilities)
 			goto continue
 		end
 		local full = {}
-		full["1"] = ability
+		full[1] = ability
 		local i = 2
 		while abilities[abilityName .. i] do
-			full[tostring(i)] = abilities[abilityName .. i]
+			full[i] = abilities[abilityName .. i]
 			i = i + 1
 		end
 
-		for _, levelledAbility in iStringPairs(full) do
-			flattenDependencies(levelledAbility, abilities)
-		end
-
-		if ability.meta and ability.meta.class then
-			full.class = ability.meta.class
+		for tier, levelledAbility in ipairs(full) do
+			levelledAbility.templateClass = levelledAbility.class -- renaming the templateClass field for my own needs
+			levelledAbility.class = nil
+			if not levelledAbility.meta then
+				goto continue
+			end
+			for key, value in pairs(levelledAbility.meta) do
+				levelledAbility[key] = value
+			end
+			levelledAbility.tier = tonumber(tier)
+			levelledAbility.name = abilityName
+			levelledAbility.meta = nil
+			::continue::
 		end
 
 		standardizedAbilities[abilityName] = full
 		::continue::
 	end
+	for _, ability in pairs(standardizedAbilities) do
+		for _, levelledAbility in ipairs(ability) do
+			module.assignDependencies(levelledAbility, standardizedAbilities)
+		end
+	end
 	return standardizedAbilities
+end
+
+local function shallowCopy(tbl)
+	local new = {}
+	for key, value in pairs(tbl) do
+		new[key] = value
+	end
+	return new
+end
+
+function module.assignDependencies(ability, abilities)
+	local parentName = nil
+	if ability.variant_of then
+		parentName = ability.variant_of
+		ability.variant_of = nil
+	elseif ability.template then
+		parentName = "template_" .. ability.template
+		ability.template = nil
+	else
+		return
+	end
+	-- all variant_of's use the first level of the ability
+	assert(not tonumber(parentName:sub(-1, -1)), "the code doesn't expect a parent of an ability to have a level")
+	local parent = abilities[parentName][1]
+	module.assignDependencies(parent, abilities)
+	ability.ancestors = shallowCopy(parent.ancestors or {})
+	table.insert(ability.ancestors, 1, parentName)
+end
+
+function module.flattenAbiltiies(abilities)
+	for _, ability in pairs(abilities) do
+		for _, levelledAbility in ipairs(ability) do
+			if not levelledAbility.ancestors then
+				goto continue
+			end
+			for _, ancestorName in ipairs(levelledAbility.ancestors) do
+				for key, value in pairs(abilities[ancestorName][1]) do
+					merge(value, levelledAbility, key)
+				end
+			end
+			::continue::
+		end
+	end
 end
 
 function module.applyBlacklist(passives, abilities, blacklist)
 	for _, name in ipairs(blacklist.passives) do
-		passives[name].blacklisted = true
+		for _, levelledPassive in ipairs(passives[name]) do
+			levelledPassive.blacklisted = true
+		end
 	end
 
 	for _, name in ipairs(blacklist.abilities) do
-		abilities[name].blacklisted = true
+		for _, levelledAbility in ipairs(abilities[name]) do
+			levelledAbility.blacklisted = true
+		end
 	end
 
 	for name, ability in pairs(abilities) do
 		if name:sub(1, 9) == "template_" then
-			ability.blacklisted = true
+			for _, levelledAbility in ipairs(ability) do
+				levelledAbility.blacklisted = true
+			end
 		end
 	end
 end
 
 local function assignText(ability, text)
-	for _, tierData in iStringPairs(ability) do
-		tierData = tierData.meta or tierData
+	for _, tierData in ipairs(ability) do
 		if tierData.desc then
 			tierData.desc = text[tierData.desc]
 		else
