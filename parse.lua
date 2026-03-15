@@ -12,9 +12,6 @@ local mewgenieMetadataMaker = require("scripts.mewgenieMetadataMaker")
 local serpent = require("lib.serpent")
 
 
---TODO: extract templates, apply templates to actives and refactor them to match
-
-
 
 if sh.stat(paths.mewgenie) then
 	if ... == "--force" then
@@ -27,7 +24,7 @@ if sh.stat(paths.mewgenie) then
 end
 
 sh.mkdir(paths.mewgenie)
-
+--[[
 iconExtractor.extractAbilities()
 svgAdjuster.adjustPassives()
 svgAdjuster.adjustSkills()
@@ -38,22 +35,27 @@ svgAdjuster.adjustClasses()
 shellMaker.makeShells()
 
 fontExtractor.extractFonts()
+--]]
 
 
 
-local passives, abilities, unlocks = dataLoader.load()
 
+local passives, abilities, abilityTemplates, unlocks = dataLoader.load()
+
+local text = langLoader.load()
+local mewgenie = mewgenieMetadataMaker.make(text)
 
 dataTransformer.tweakData(passives, abilities)
-local text = langLoader.load()
 dataTransformer.standardizePassives(passives)
+abilities = dataTransformer.standardizeAbilities(abilities, abilityTemplates)
 dataTransformer.applyUnlocks(passives, abilities, unlocks)
 dataTransformer.applyText(passives, abilities, text)
+dataTransformer.applyBlacklist(passives, abilities, mewgenie.blacklist)
 
-sh.write(paths.data.json.abilities, json.encode(abilities))
 sh.write(paths.data.json.passives, json.encode(passives))
+sh.write(paths.data.json.abilities, json.encode(abilities))
+sh.write(paths.data.json.abilityTemplates, json.encode(abilityTemplates))
 sh.write(paths.data.json.unlocks, json.encode(unlocks))
 
-local mewgenie = mewgenieMetadataMaker.make(text)
 
 sh.write(paths.data.json.mewgenie, json.encode(mewgenie))

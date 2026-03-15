@@ -7,8 +7,6 @@ local module = {}
 
 function module.load()
 	local passives = {}
-	local abilities = {}
-	local unlocks = {}
 	for _, path in ipairs(paths.data.gon.passives) do
 		local parsed = eggon.parse(sh.read(path))
 		for key, value in pairs(parsed) do
@@ -16,6 +14,7 @@ function module.load()
 		end
 	end
 
+	local abilities = {}
 	for _, path in ipairs(paths.data.gon.abilities) do
 		local parsed = eggon.parse(sh.read(path))
 		for key, value in pairs(parsed) do
@@ -23,12 +22,17 @@ function module.load()
 		end
 	end
 
-	local parsed = eggon.parse(sh.read(paths.data.gon.unlocks))
-	for key, value in pairs(parsed) do
+	local abilityTemplates = {}
+	for key, value in pairs(eggon.parse(sh.read(paths.data.gon.abilityTemplates))) do
+		abilityTemplates[key] = value
+	end
+
+	local unlocks = {}
+	for key, value in pairs(eggon.parse(sh.read(paths.data.gon.unlocks))) do
 		unlocks[key] = value
 	end
 
-	return passives, abilities, unlocks
+	return passives, abilities, abilityTemplates, unlocks
 end
 
 return module

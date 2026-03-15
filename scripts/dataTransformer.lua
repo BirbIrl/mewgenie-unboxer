@@ -60,16 +60,19 @@ end
 
 local function merge(value, target, key)
 	if type(target[key]) ~= "table" then
-		assert(target[key] == nil or (type(target[key] == type(target))))
-		target[key] = value
+		if target[key] == nil then
+			target[key] = value
+		end
 		return
 	end
-
-	local t = target[key]
-	for _, v in pairs(value) do
-		merge(v, t, key)
+	if type(value) == "table" then
+		local t = target[key]
+		for k, v in pairs(value) do
+			merge(v, t, k)
+		end
 	end
 end
+
 
 function module.standardizePassives(passives)
 	for _, passive in pairs(passives) do
@@ -87,13 +90,71 @@ function module.standardizePassives(passives)
 	end
 end
 
-function module.refactorAbilities(abilities)
-	for ability in abilities do
+local function flattenDependencies(ability, abilities, abilityTemplates)
+	local parent = nil
+	local parentName = nil
+	if ability.variant_of then
+		parentName = ability.variant_of
+		parent = abilities[parentName]
+		ability.variant_of = nil
+	elseif ability.template then
+		parentName = "template_" .. ability.template
+		parent = abilityTemplates[parentName]
+		ability.template = nil
+	else
+		return
+	end
+	for key, value in pairs(parent) do
+		merge(value, ability, key)
+	end
+	ability.parents = ability.parents or {}
+	table.insert(ability.parents, 1, parentName)
+	flattenDependencies(ability, abilities, abilityTemplates)
+end
+
+---@param abilities table<string, table>
+---@param abilityTemplates table<string, table>
+function module.standardizeAbilities(abilities, abilityTemplates)
+	local standardizedAbilities = {}
+	for abilityName, ability in pairs(abilities) do
+		if tonumber(abilityName:sub(-1, -1)) then
+			goto continue
+		end
+		local full = {}
+		full["1"] = ability
+		local i = 2
+		while abilities[abilityName .. i] do
+			full[tostring(i)] = abilities[abilityName .. i]
+			i = i + 1
+		end
+
+		for _, levelledAbility in iStringPairs(full) do
+			flattenDependencies(levelledAbility, abilities, abilityTemplates)
+		end
+
+		if ability.meta and ability.meta.class then
+			full.class = ability.meta.class
+		end
+
+		standardizedAbilities[abilityName] = full
+		::continue::
+	end
+	return standardizedAbilities
+end
+
+function module.applyBlacklist(passives, abilities, blacklist)
+	for _, name in ipairs(blacklist.passives) do
+		passives[name].blacklisted = true
+	end
+
+	for _, name in ipairs(blacklist.abilities) do
+		abilities[name].blacklisted = true
 	end
 end
 
 local function assignText(ability, text)
 	for _, tierData in iStringPairs(ability) do
+		tierData = tierData.meta or tierData
 		if tierData.desc then
 			tierData.desc = text[tierData.desc]
 		else
@@ -121,9 +182,7 @@ function module.applyText(passives, abilities, text)
 	end
 
 	for _, ability in pairs(abilities) do
-		if ability.meta then
-			assignText(ability.meta, text)
-		end
+		assignText(ability, text)
 	end
 end
 
