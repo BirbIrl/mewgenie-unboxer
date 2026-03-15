@@ -76,7 +76,6 @@ paths.data = {
 	},
 	gon = {
 		unlocks = "./mewgenics-data/data/adventure_progression_unlocks.gon",
-		abilityTemplates = "mewgenics-data/data/ability_templates/ability_templates.gon",
 		passives = {
 			"./mewgenics-data/data/passives/butcher_passives.gon",
 			"./mewgenics-data/data/passives/colorless_passives.gon",
@@ -129,6 +128,7 @@ paths.data = {
 			"./mewgenics-data/data/abilities/throbbing_king_abilities.gon",
 			"./mewgenics-data/data/abilities/tinkerer_abilities.gon",
 			"./mewgenics-data/data/abilities/util_abilities.gon",
+			"./mewgenics-data/data/ability_templates/ability_templates.gon" -- templates
 		}
 	}
 }

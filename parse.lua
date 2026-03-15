@@ -40,21 +40,20 @@ fontExtractor.extractFonts()
 
 
 
-local passives, abilities, abilityTemplates, unlocks = dataLoader.load()
+local passives, abilities, unlocks = dataLoader.load()
 
 local text = langLoader.load()
 local mewgenie = mewgenieMetadataMaker.make(text)
 
 dataTransformer.tweakData(passives, abilities)
 dataTransformer.standardizePassives(passives)
-abilities = dataTransformer.standardizeAbilities(abilities, abilityTemplates)
+abilities = dataTransformer.standardizeAbilities(abilities)
 dataTransformer.applyUnlocks(passives, abilities, unlocks)
 dataTransformer.applyText(passives, abilities, text)
 dataTransformer.applyBlacklist(passives, abilities, mewgenie.blacklist)
 
 sh.write(paths.data.json.passives, json.encode(passives))
 sh.write(paths.data.json.abilities, json.encode(abilities))
-sh.write(paths.data.json.abilityTemplates, json.encode(abilityTemplates))
 sh.write(paths.data.json.unlocks, json.encode(unlocks))
 
 

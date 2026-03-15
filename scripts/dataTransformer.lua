@@ -90,31 +90,29 @@ function module.standardizePassives(passives)
 	end
 end
 
-local function flattenDependencies(ability, abilities, abilityTemplates)
-	local parent = nil
+local function flattenDependencies(ability, abilities)
 	local parentName = nil
 	if ability.variant_of then
 		parentName = ability.variant_of
-		parent = abilities[parentName]
 		ability.variant_of = nil
 	elseif ability.template then
 		parentName = "template_" .. ability.template
-		parent = abilityTemplates[parentName]
 		ability.template = nil
 	else
 		return
 	end
+
+	local parent = abilities[parentName]
 	for key, value in pairs(parent) do
 		merge(value, ability, key)
 	end
 	ability.parents = ability.parents or {}
 	table.insert(ability.parents, 1, parentName)
-	flattenDependencies(ability, abilities, abilityTemplates)
+	flattenDependencies(ability, abilities)
 end
 
 ---@param abilities table<string, table>
----@param abilityTemplates table<string, table>
-function module.standardizeAbilities(abilities, abilityTemplates)
+function module.standardizeAbilities(abilities)
 	local standardizedAbilities = {}
 	for abilityName, ability in pairs(abilities) do
 		if tonumber(abilityName:sub(-1, -1)) then
@@ -129,7 +127,7 @@ function module.standardizeAbilities(abilities, abilityTemplates)
 		end
 
 		for _, levelledAbility in iStringPairs(full) do
-			flattenDependencies(levelledAbility, abilities, abilityTemplates)
+			flattenDependencies(levelledAbility, abilities)
 		end
 
 		if ability.meta and ability.meta.class then
@@ -149,6 +147,12 @@ function module.applyBlacklist(passives, abilities, blacklist)
 
 	for _, name in ipairs(blacklist.abilities) do
 		abilities[name].blacklisted = true
+	end
+
+	for name, ability in pairs(abilities) do
+		if name:sub(1, 9) == "template_" then
+			ability.blacklisted = true
+		end
 	end
 end
 
