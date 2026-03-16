@@ -35,7 +35,16 @@ function module.load()
 		end
 	end
 
-	return passives, abilities, unlocks, classes
+	local pools = {}
+	for _, path in ipairs(paths.data.gon.pools) do
+		local parsed = eggon.parse(sh.read(path))
+		for key, value in pairs(parsed) do
+			pools[key] = value
+		end
+	end
+
+
+	return passives, abilities, unlocks, classes, pools
 end
 
 return module

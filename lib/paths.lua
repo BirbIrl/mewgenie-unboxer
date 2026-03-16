@@ -82,6 +82,11 @@ paths.data = {
 			"./mewgenics-data/data/classes/classes.gon",
 			"./mewgenics-data/data/classes/advanced_classes.gon",
 		},
+		pools = {
+			"./mewgenics-data/data/passive_pools.gon",
+			"./mewgenics-data/data/ability_pools.gon",
+			"./mewgenics-data/data/event_pools.gon",
+		},
 		passives = {
 			"./mewgenics-data/data/passives/butcher_passives.gon",
 			"./mewgenics-data/data/passives/colorless_passives.gon",

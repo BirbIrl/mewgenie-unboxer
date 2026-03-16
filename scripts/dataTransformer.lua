@@ -271,7 +271,7 @@ local function addClassPool(objects, className, class, poolName, nameOverride)
 	end
 end
 
-function module.applyClassPools(passives, abilities, classes)
+function module.applyPools(passives, abilities, classes, pools)
 	for className, class in pairs(classes) do
 		addClassPool(passives, className, class, "passive_pool", "passive")
 		addClassPool(abilities, className, class, "ability_pool", "ability")
@@ -280,6 +280,19 @@ function module.applyClassPools(passives, abilities, classes)
 		addClassPool(abilities, className, class.ability_groups, "defense")
 		addClassPool(abilities, className, class.ability_groups, "misc")
 		addClassPool(abilities, className, class.ability_groups, "move")
+	end
+	for poolName, pool in pairs(pools) do
+		for _, objectId in ipairs(pool) do
+			local object = passives[objectId] or abilities[objectId]
+			if not object then
+				goto continue
+			end
+			for _, tieredObject in ipairs(object) do
+				tieredObject.pool = tieredObject.pool or {}
+				table.insert(tieredObject.pool, poolName)
+			end
+			::continue::
+		end
 	end
 end
 
