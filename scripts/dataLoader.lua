@@ -22,13 +22,20 @@ function module.load()
 		end
 	end
 
-
 	local unlocks = {}
 	for key, value in pairs(eggon.parse(sh.read(paths.data.gon.unlocks))) do
 		unlocks[key] = value
 	end
 
-	return passives, abilities, unlocks
+	local classes = {}
+	for _, path in ipairs(paths.data.gon.classes) do
+		local parsed = eggon.parse(sh.read(path))
+		for key, value in pairs(parsed) do
+			classes[key] = value
+		end
+	end
+
+	return passives, abilities, unlocks, classes
 end
 
 return module

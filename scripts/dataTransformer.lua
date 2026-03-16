@@ -259,4 +259,28 @@ function module.applyText(passives, abilities, text)
 	end
 end
 
+local function addClassPool(objects, className, class, poolName, nameOverride)
+	if not (class and class[poolName]) then
+		return
+	end
+	for _, passiveId in ipairs(class[poolName]) do
+		for _, tieredObject in ipairs(objects[passiveId]) do
+			tieredObject.pool = tieredObject.pool or {}
+			table.insert(tieredObject.pool, className:lower() .. "_" .. (nameOverride or poolName))
+		end
+	end
+end
+
+function module.applyClassPools(passives, abilities, classes)
+	for className, class in pairs(classes) do
+		addClassPool(passives, className, class, "passive_pool", "passive")
+		addClassPool(abilities, className, class, "ability_pool", "ability")
+		addClassPool(abilities, className, class, "attack_pool", "attack")
+		addClassPool(abilities, className, class.ability_groups, "attack")
+		addClassPool(abilities, className, class.ability_groups, "defense")
+		addClassPool(abilities, className, class.ability_groups, "misc")
+		addClassPool(abilities, className, class.ability_groups, "move")
+	end
+end
+
 return module

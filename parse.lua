@@ -12,6 +12,9 @@ local mewgenieMetadataMaker = require("scripts.mewgenieMetadataMaker")
 local serpent = require("lib.serpent")
 
 
+---TODO
+---extract shells
+---extract items
 
 if sh.stat(paths.mewgenie) then
 	if ... == "--force" then
@@ -40,7 +43,7 @@ fontExtractor.extractFonts()
 
 
 
-local passives, abilities, unlocks = dataLoader.load()
+local passives, abilities, unlocks, classes = dataLoader.load()
 
 local text = langLoader.load()
 local mewgenie = mewgenieMetadataMaker.make(text)
@@ -52,10 +55,12 @@ dataTransformer.flattenAbiltiies(abilities)
 dataTransformer.applyUnlocks(passives, abilities, unlocks)
 dataTransformer.applyText(passives, abilities, text)
 dataTransformer.applyBlacklist(passives, abilities, mewgenie.blacklist)
+dataTransformer.applyClassPools(passives, abilities, classes)
 
 sh.write(paths.data.json.passives, json.encode(passives))
 sh.write(paths.data.json.abilities, json.encode(abilities))
 sh.write(paths.data.json.unlocks, json.encode(unlocks))
+sh.write(paths.data.json.classes, json.encode(classes))
 
 
 sh.write(paths.data.json.mewgenie, json.encode(mewgenie))

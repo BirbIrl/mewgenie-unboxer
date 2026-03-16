@@ -52,6 +52,7 @@ paths.data = {
 		abilityTemplates = paths.mewgenie .. "/ability_templates.json",
 		unlocks = paths.mewgenie .. "/unlocks.json",
 		mewgenie = paths.mewgenie .. "/mewgenie.json",
+		classes = paths.mewgenie .. "/classes.json",
 	},
 	csv = {
 		"./mewgenics-data/data/text/abilities.csv",
@@ -76,6 +77,11 @@ paths.data = {
 	},
 	gon = {
 		unlocks = "./mewgenics-data/data/adventure_progression_unlocks.gon",
+		classes = {
+
+			"./mewgenics-data/data/classes/classes.gon",
+			"./mewgenics-data/data/classes/advanced_classes.gon",
+		},
 		passives = {
 			"./mewgenics-data/data/passives/butcher_passives.gon",
 			"./mewgenics-data/data/passives/colorless_passives.gon",
