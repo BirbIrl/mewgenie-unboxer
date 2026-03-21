@@ -75,10 +75,10 @@ local shells = paths.assets.unsorted.shells .. "/"
 local shellsSorted = paths.assets.final.shells .. "/"
 
 function module.makeShells()
+	sh.mkdir(paths.mewgenie .. "/" .. "shells")
 	local passive = sh.read(shells .. "shellPassive.svg")
 	local passiveClassed = sh.read(shells .. "shellPassiveClassed.svg")
 	local passiveCrown = sh.read(shells .. "shellPassiveUpgradeCrown.svg")
-	sh.mkdir(paths.mewgenie .. "/" .. "shells")
 	sh.cp(shells .. "shellPassiveDisorder.svg", shellsSorted .. "shellPassiveDisorder.svg")
 	sh.cp(shells .. "shellPassiveUpgradePip.svg", shellsSorted .. "shellPassiveUpgradePip.svg")
 	sh.write(shellsSorted .. "shellPassiveColorless.svg", passive:gsub("#111111", passiveColors.Colorless))
@@ -89,6 +89,43 @@ function module.makeShells()
 	end
 	for class, color in pairs(passiveCrownColors) do
 		sh.write(shellsSorted .. "shellPassiveUpgradeCrown" .. class .. ".svg", passiveCrown:gsub("#666666", color))
+	end
+
+	local active = {
+		colorless = {
+			Small = sh.read(shells .. "shellActiveSmall.svg"),
+			Medium = sh.read(shells .. "shellActiveMedium.svg"),
+			Large = sh.read(shells .. "shellActiveLarge.svg"),
+		},
+		classed = {
+			Small = sh.read(shells .. "shellActiveSmallClassed.svg"),
+			Medium = sh.read(shells .. "shellActiveMediumClassed.svg"),
+			Large = sh.read(shells .. "shellActiveLargeClassed.svg"),
+		},
+		innate = {
+			Small = sh.read(shells .. "shellInnateSmall.svg"),
+			Medium = sh.read(shells .. "shellInnateMedium.svg"),
+			Large = sh.read(shells .. "shellInnateLarge.svg"),
+		},
+	}
+	local passiveCrown = sh.read(shells .. "shellPassiveUpgradeCrown.svg")
+	sh.cp(shells .. "shellActiveUpgradePip.svg", shellsSorted .. "shellActiveUpgradePip.svg")
+	for size, svg in pairs(active.colorless) do
+		sh.write(shellsSorted .. "shellActive" .. size .. ".svg", svg:gsub("#111111", activeColors.Colorless))
+	end
+	for class, color in pairs(activeColors) do
+		if class ~= "Colorless" then
+			for size, svg in pairs(active.classed) do
+				sh.write(shellsSorted .. "shellActive" .. size .. class .. ".svg",
+					svg:gsub("#111111", color))
+			end
+			for size, svg in pairs(active.innate) do
+				sh.write(shellsSorted .. "shellInnate" .. size .. class .. ".svg", svg:gsub("#111111", color))
+			end
+		end
+	end
+	for class, color in pairs(activeCrownColors) do
+		sh.write(shellsSorted .. "shellActiveUpgradeCrown" .. class .. ".svg", passiveCrown:gsub("#666666", color))
 	end
 end
 

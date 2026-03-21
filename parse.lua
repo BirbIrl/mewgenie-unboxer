@@ -13,7 +13,6 @@ local serpent = require("lib.serpent")
 
 
 ---TODO
----extract shells
 ---extract items
 
 if sh.stat(paths.mewgenie) then
@@ -27,7 +26,6 @@ if sh.stat(paths.mewgenie) then
 end
 
 sh.mkdir(paths.mewgenie)
---[[
 iconExtractor.extractAbilities()
 svgAdjuster.adjustPassives()
 svgAdjuster.adjustSkills()
@@ -38,9 +36,6 @@ svgAdjuster.adjustClasses()
 shellMaker.makeShells()
 
 fontExtractor.extractFonts()
---]]
-
-
 
 
 local passives, abilities, unlocks, classes, pools = dataLoader.load()
