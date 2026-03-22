@@ -108,7 +108,7 @@ function module.makeShells()
 			Large = sh.read(shells .. "shellInnateLarge.svg"),
 		},
 	}
-	local passiveCrown = sh.read(shells .. "shellPassiveUpgradeCrown.svg")
+	local passiveCrown = sh.read(shells .. "shellActiveUpgradeCrown.svg")
 	sh.cp(shells .. "shellActiveUpgradePip.svg", shellsSorted .. "shellActiveUpgradePip.svg")
 	for size, svg in pairs(active.colorless) do
 		sh.write(shellsSorted .. "shellActive" .. size .. ".svg", svg:gsub("#111111", activeColors.Colorless))
