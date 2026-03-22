@@ -36,6 +36,7 @@ function module.make(text)
 		abilities = {
 			"Double",
 			"Enlarge",
+			"Heathens",
 			"FireArmor",
 			"IceArmor",
 			"Purge",
@@ -70,6 +71,7 @@ function module.make(text)
 			"TCCatBot",
 			"NCGravecrawl",
 			"DruidCatBasic",
+			"head_MiniMoonArmorAsteroid",
 		}
 	}
 

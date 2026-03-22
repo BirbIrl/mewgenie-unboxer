@@ -14,6 +14,7 @@ local serpent = require("lib.serpent")
 
 ---TODO
 ---extract items
+---Heathens is both a passive and an active, frick.
 
 if sh.stat(paths.mewgenie) then
 	if ... == "--force" then
